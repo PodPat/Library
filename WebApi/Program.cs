@@ -1,25 +1,34 @@
-var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+using Library.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+public class Startup
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddDbContext<LibraryContext>(options =>
+            options.UseInMemoryDatabase("LibraryDb"));
+
+        services.AddControllers();
+        services.AddSwaggerGen();
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Library.Api v1"));
+        }
+
+        app.UseRouting();
+
+        app.UseAuthorization();
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Library.Domain.Entities;
 
 
-namespace Infrastructure.Data
+namespace Library.Infrastructure.Data
 {
     public class LibraryContext : DbContext
     {
