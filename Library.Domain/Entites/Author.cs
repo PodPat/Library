@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Entites
+namespace Library.Domain.Entities
 {
     public class Author
     {
