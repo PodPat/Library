@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Library.Api.Controllers
+namespace Library.WebApi.Controllers
 {
     [Route("admin/[controller]")]
     public class AdminController : Controller
@@ -15,7 +15,7 @@ namespace Library.Api.Controllers
 
         public AdminController(LibraryContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         // GET: admin/books

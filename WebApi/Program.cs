@@ -1,25 +1,22 @@
 using Library.Infrastructure.Data;
-using Library.Api.SoapServices;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using SoapCore;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Load configuration from appsettings.json
 var configuration = builder.Configuration;
 
-// Add services to the container.
+// Add services to the container
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseInMemoryDatabase("LibraryDb"));
 
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Library.Api", Version = "v1" });
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Library.Api", Version = "v1" });
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -37,18 +34,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-// Add SOAP services
-builder.Services.AddScoped<IBookService, BookService>();
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Library.Api v1"));
 }
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseRouting();
 
@@ -57,12 +59,14 @@ app.UseAuthorization();
 
 
 
-// Add SOAP endpoints
-app.UseSoapEndpoint<IBookService>("/BookService.svc", new SoapEncoderOptions());
-
 app.UseEndpoints(endpoints =>
 {
-    endpoints.MapControllers();
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+    endpoints.MapControllerRoute(
+        name: "admin",
+        pattern: "admin/{controller=Admin}/{action=Books}/{id?}");
 });
 
 app.Run();
