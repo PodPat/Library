@@ -22,7 +22,8 @@ namespace Library.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
-            return await _context.Books.Include(b => b.Author).Include(b => b.Category).ToListAsync();
+            var books = await _context.Books.Include(b => b.Author).Include(b => b.Category).ToListAsync();
+            return Ok(books);
         }
 
         [HttpGet("{id}")]
@@ -35,7 +36,7 @@ namespace Library.Api.Controllers
                 return NotFound();
             }
 
-            return book;
+            return Ok(book);
         }
 
         [HttpPost]

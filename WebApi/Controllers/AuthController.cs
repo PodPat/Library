@@ -22,16 +22,15 @@ namespace Library.Api.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginModel loginModel)
         {
-            // W prawdziwej aplikacji tutaj sprawdzamy dane logowania użytkownika
             if (loginModel.Username == "test" && loginModel.Password == "password")
             {
-                var token = GenerateJwtToken(loginModel.Username);
-                return Ok(new { Token = token });
+                var token = GenerateJwtToken(loginModel.Username, out DateTime expiry);
+                return Ok(new { Username = loginModel.Username, Token = token, Expiry = expiry });
             }
             return Unauthorized();
         }
 
-        private string GenerateJwtToken(string username)
+        private string GenerateJwtToken(string username, out DateTime expiry)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
 
@@ -44,11 +43,13 @@ namespace Library.Api.Controllers
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
+            expiry = DateTime.Now.AddMinutes(double.Parse(jwtSettings["ExpiresInMinutes"]));
+
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(double.Parse(jwtSettings["ExpiresInMinutes"])),
+                expires: expiry,
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

@@ -22,7 +22,8 @@ namespace Library.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
-            return await _context.Categories.Include(c => c.Books).ToListAsync();
+            var categories = await _context.Categories.Include(c => c.Books).ToListAsync();
+            return Ok(categories);
         }
 
         [HttpGet("{id}")]
